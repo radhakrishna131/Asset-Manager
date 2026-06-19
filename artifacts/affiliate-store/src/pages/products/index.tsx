@@ -3,15 +3,12 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useListProducts, getListProductsQueryKey, useListCategories, getListCategoriesQueryKey } from "@workspace/api-client-react";
 import { ProductCard, cardVariants } from "@/components/ProductCard";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Loader2, X, LayoutGrid } from "lucide-react";
+import { Search, Loader2, X, SlidersHorizontal } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-const containerVariants = {
+const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
+  visible: { transition: { staggerChildren: 0.06 } },
 };
 
 export default function ProductsPage() {
@@ -26,23 +23,20 @@ export default function ProductsPage() {
   const limit = 12;
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    setSearch(urlParams.get("search") || "");
-    setCategory(urlParams.get("category") || "all");
-    setSort(urlParams.get("sort") || "relevance");
-    setPage(parseInt(urlParams.get("page") || "1"));
+    const p = new URLSearchParams(window.location.search);
+    setSearch(p.get("search") || "");
+    setCategory(p.get("category") || "all");
+    setSort(p.get("sort") || "relevance");
+    setPage(parseInt(p.get("page") || "1"));
   }, [location]);
 
   const updateUrl = (updates: Record<string, string>) => {
-    const newParams = new URLSearchParams(window.location.search);
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value && value !== "all" && value !== "1" && value !== "relevance") {
-        newParams.set(key, value);
-      } else {
-        newParams.delete(key);
-      }
+    const p = new URLSearchParams(window.location.search);
+    Object.entries(updates).forEach(([k, v]) => {
+      if (v && v !== "all" && v !== "1" && v !== "relevance") p.set(k, v);
+      else p.delete(k);
     });
-    window.history.pushState({}, "", `/products${newParams.toString() ? `?${newParams.toString()}` : ""}`);
+    window.history.pushState({}, "", `/products${p.toString() ? `?${p.toString()}` : ""}`);
     if (updates.search !== undefined) setSearch(updates.search);
     if (updates.category !== undefined) setCategory(updates.category);
     if (updates.sort !== undefined) setSort(updates.sort);
@@ -58,217 +52,176 @@ export default function ProductsPage() {
   };
 
   const { data, isLoading } = useListProducts(queryParams, {
-    query: { queryKey: getListProductsQueryKey(queryParams) }
+    query: { queryKey: getListProductsQueryKey(queryParams) },
   });
-
   const { data: categories } = useListCategories({
-    query: { queryKey: getListCategoriesQueryKey() }
+    query: { queryKey: getListCategoriesQueryKey() },
   });
 
   const totalPages = data ? Math.ceil(data.total / limit) : 0;
 
-  const FiltersContent = () => (
-    <div className="space-y-6">
-      <div className="space-y-1.5">
-        <h3 className="font-semibold text-xs tracking-widest text-muted-foreground uppercase px-2 mb-3">Categories</h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`w-full justify-start font-medium ${category === "all" ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
-          onClick={() => updateUrl({ category: "all", page: "1" })}
-        >
-          All Categories
-        </Button>
-        {categories?.map((cat) => (
-          <Button
-            key={cat.id}
-            variant="ghost"
-            size="sm"
-            className={`w-full justify-start font-medium ${category === cat.slug ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
+  const CatList = () => (
+    <div className="space-y-px">
+      {[{ name: "All Products", slug: "all" }, ...(categories || [])].map((cat) => {
+        const active = cat.slug === category || (cat.slug === "all" && category === "all");
+        return (
+          <button
+            key={cat.slug}
             onClick={() => updateUrl({ category: cat.slug, page: "1" })}
+            className={`w-full text-left text-xs px-3 py-2 rounded-sm transition-colors uppercase tracking-wider font-medium ${
+              active ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
           >
             {cat.name}
-            {cat.productCount > 0 && (
-              <span className="ml-auto text-xs opacity-50">{cat.productCount}</span>
-            )}
-          </Button>
-        ))}
-      </div>
+          </button>
+        );
+      })}
     </div>
   );
 
+  const sortOptions: { value: string; label: string }[] = [
+    { value: "relevance", label: "Relevance" },
+    { value: "popular", label: "Most popular" },
+    { value: "highest_rated", label: "Highest rated" },
+    { value: "lowest_price", label: "Price: Low to high" },
+    { value: "highest_price", label: "Price: High to low" },
+    { value: "biggest_discount", label: "Biggest discount" },
+    { value: "latest", label: "Newest first" },
+  ];
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="container mx-auto px-4 py-10"
-    >
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Desktop Sidebar */}
-        <aside className="hidden md:block w-56 shrink-0">
-          <div className="sticky top-24 p-4 rounded-2xl border bg-card">
-            <h2 className="text-base font-bold mb-4 px-2">Filters</h2>
-            <FiltersContent />
+    <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="flex flex-col md:flex-row gap-12">
+
+        {/* Sidebar */}
+        <aside className="hidden md:block w-44 shrink-0">
+          <div className="sticky top-20">
+            <p className="text-[10px] tracking-widest uppercase text-muted-foreground font-medium mb-4">Categories</p>
+            <CatList />
+
+            <p className="text-[10px] tracking-widest uppercase text-muted-foreground font-medium mb-3 mt-8">Sort by</p>
+            <div className="space-y-px">
+              {sortOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => updateUrl({ sort: opt.value, page: "1" })}
+                  className={`w-full text-left text-xs px-3 py-2 rounded-sm transition-colors ${
+                    sort === opt.value ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Main */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-muted-foreground" />
-                {category !== "all" ? categories?.find(c => c.slug === category)?.name || "Products" : "All Products"}
-              </h1>
-              <motion.p
-                key={data?.total}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-muted-foreground mt-1 text-sm"
-              >
-                {data?.total !== undefined ? `${data.total} result${data.total !== 1 ? "s" : ""}` : "Loading…"}
-              </motion.p>
+          {/* Toolbar */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+              <input
+                placeholder="Search products..."
+                className="w-full h-9 pl-9 pr-8 text-sm bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-foreground/20 focus:border-foreground/30 transition-all placeholder:text-muted-foreground/60"
+                value={search}
+                onChange={(e) => updateUrl({ search: e.target.value, page: "1" })}
+              />
+              <AnimatePresence>
+                {search && (
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => updateUrl({ search: "", page: "1" })}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
 
-            <div className="flex w-full sm:w-auto items-center gap-3">
-              <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Search products..."
-                  className="pl-9 bg-muted/50 border-none rounded-xl"
-                  value={search}
-                  onChange={(e) => updateUrl({ search: e.target.value, page: "1" })}
-                />
-                <AnimatePresence>
-                  {search && (
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.7 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.7 }}
-                      onClick={() => updateUrl({ search: "", page: "1" })}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="w-4 h-4" />
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-              </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="md:hidden h-9 px-3 border border-border rounded-sm text-muted-foreground hover:text-foreground flex items-center gap-2">
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span className="text-xs">Filter</span>
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64">
+                <SheetHeader className="mb-6">
+                  <SheetTitle className="text-xs tracking-widest uppercase">Filters</SheetTitle>
+                </SheetHeader>
+                <p className="text-[10px] tracking-widest uppercase text-muted-foreground font-medium mb-3">Categories</p>
+                <CatList />
+              </SheetContent>
+            </Sheet>
 
-              <Select value={sort} onValueChange={(val) => updateUrl({ sort: val, page: "1" })}>
-                <SelectTrigger className="w-[155px] bg-muted/50 border-none rounded-xl">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevance</SelectItem>
-                  <SelectItem value="popular">Popularity</SelectItem>
-                  <SelectItem value="highest_rated">Highest Rated</SelectItem>
-                  <SelectItem value="lowest_price">Lowest Price</SelectItem>
-                  <SelectItem value="highest_price">Highest Price</SelectItem>
-                  <SelectItem value="biggest_discount">Biggest Discount</SelectItem>
-                  <SelectItem value="latest">Newest Arrivals</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="md:hidden shrink-0 rounded-xl">
-                    <Filter className="w-4 h-4" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left">
-                  <SheetHeader className="mb-6">
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <FiltersContent />
-                </SheetContent>
-              </Sheet>
-            </div>
+            <motion.span
+              key={data?.total}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-muted-foreground whitespace-nowrap hidden sm:block"
+            >
+              {data?.total ?? "…"} results
+            </motion.span>
           </div>
 
+          {/* Grid */}
           <AnimatePresence mode="wait">
             {isLoading ? (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-24 text-muted-foreground"
-              >
-                <Loader2 className="w-8 h-8 animate-spin mb-4 opacity-50" />
-                <p className="text-sm">Loading products…</p>
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="flex items-center justify-center py-24 text-muted-foreground">
+                <Loader2 className="w-5 h-5 animate-spin" />
               </motion.div>
             ) : data?.products.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="text-center py-24 bg-muted/20 rounded-2xl border border-dashed"
-              >
-                <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4 opacity-30" />
-                <h3 className="text-xl font-bold mb-2">No products found</h3>
-                <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-                  Try a different search term or category.
-                </p>
-                <Button
-                  variant="outline"
-                  className="mt-6"
-                  onClick={() => {
-                    setSearch("");
-                    setCategory("all");
-                    updateUrl({ search: "", category: "all", page: "1" });
-                  }}
+              <motion.div key="empty" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="py-24 text-center">
+                <p className="text-sm text-muted-foreground mb-4">No products match your filters.</p>
+                <button
+                  onClick={() => updateUrl({ search: "", category: "all", page: "1" })}
+                  className="text-xs underline underline-offset-4 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Clear filters
-                </Button>
+                </button>
               </motion.div>
             ) : (
               <motion.div key="grid">
                 <motion.div
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-                  variants={containerVariants}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10"
+                  variants={container}
                   initial="hidden"
                   animate="visible"
                 >
-                  {data?.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+                  {data?.products.map((p) => <ProductCard key={p.id} product={p} />)}
                 </motion.div>
 
                 {totalPages > 1 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex items-center justify-center gap-3 mt-12"
-                  >
-                    <Button
-                      variant="outline"
+                  <div className="flex items-center justify-center gap-4 mt-14">
+                    <button
                       disabled={page === 1}
                       onClick={() => updateUrl({ page: String(page - 1) })}
-                      className="rounded-xl"
+                      className="text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition-colors uppercase tracking-wider"
                     >
                       Previous
-                    </Button>
-                    <span className="text-sm font-medium text-muted-foreground px-2">
-                      Page {page} of {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
+                    </button>
+                    <span className="text-xs text-muted-foreground">{page} / {totalPages}</span>
+                    <button
                       disabled={page === totalPages}
                       onClick={() => updateUrl({ page: String(page + 1) })}
-                      className="rounded-xl"
+                      className="text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none transition-colors uppercase tracking-wider"
                     >
                       Next
-                    </Button>
-                  </motion.div>
+                    </button>
+                  </div>
                 )}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link } from "wouter";
-import { Search, Heart, ShoppingBag } from "lucide-react";
+import { Search, Heart } from "lucide-react";
 import { useWishlist } from "@/hooks/use-wishlist";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -8,29 +8,30 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tighter">
-              <ShoppingBag className="w-6 h-6 text-primary" />
-              <span>Curation</span>
+      <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="text-sm font-semibold tracking-widest uppercase text-foreground">
+              Curation
             </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-              <Link href="/products" className="hover:text-foreground transition-colors">Products</Link>
-              <Link href="/deals" className="hover:text-foreground transition-colors">Deals</Link>
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/products" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors tracking-wide uppercase">
+                Products
+              </Link>
+              <Link href="/deals" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors tracking-wide uppercase">
+                Deals
+              </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Link href="/products" className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-muted transition-colors">
-              <Search className="w-5 h-5" />
+          <div className="flex items-center gap-1">
+            <Link href="/products" className="text-muted-foreground hover:text-foreground p-2 transition-colors">
+              <Search className="w-4 h-4" />
             </Link>
-            <Link href="/wishlist" className="relative text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-muted transition-colors">
-              <Heart className="w-5 h-5" />
+            <Link href="/wishlist" className="relative text-muted-foreground hover:text-foreground p-2 transition-colors">
+              <Heart className="w-4 h-4" />
               {wishlist.length > 0 && (
-                <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground rounded-full text-[10px] flex items-center justify-center font-bold">
-                  {wishlist.length}
-                </span>
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-foreground rounded-full" />
               )}
             </Link>
           </div>
@@ -41,12 +42,13 @@ export function Layout({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <footer className="border-t bg-muted/40 py-12">
-        <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} Curation. A premium discovery platform.</p>
-          <div className="mt-4 flex justify-center gap-4">
-            <Link href="/admin" className="hover:text-foreground">Admin Portal</Link>
-          </div>
+      <footer className="border-t border-border/60 py-10 mt-16">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <span className="tracking-widest uppercase font-medium">Curation</span>
+          <span>&copy; {new Date().getFullYear()} — A curated product discovery platform for India</span>
+          <Link href="/admin" className="hover:text-foreground transition-colors tracking-wide uppercase">
+            Admin
+          </Link>
         </div>
       </footer>
     </div>
