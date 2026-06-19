@@ -3,13 +3,21 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Affiliate Product Discovery Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product operations
+  - name: categories
+    description: Category operations
+  - name: analytics
+    description: Analytics operations
+  - name: admin
+    description: Admin operations
 paths:
   /healthz:
     get:
@@ -24,6 +32,366 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+        - name: minRating
+          in: query
+          schema:
+            type: number
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [relevance, popular, highest_rated, lowest_price, highest_price, biggest_discount, latest]
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 24
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create product (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+
+  /products/featured:
+    get:
+      operationId: getFeaturedProducts
+      tags: [products]
+      summary: Get featured products
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 8
+      responses:
+        "200":
+          description: Featured products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/trending:
+    get:
+      operationId: getTrendingProducts
+      tags: [products]
+      summary: Get trending products by click count
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 8
+      responses:
+        "200":
+          description: Trending products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/deals:
+    get:
+      operationId: getDealsProducts
+      tags: [products]
+      summary: Get best deals (highest discount)
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 8
+      responses:
+        "200":
+          description: Deals products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/scrape:
+    post:
+      operationId: scrapeProductUrl
+      tags: [products]
+      summary: Scrape product info from URL (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScrapeInput"
+      responses:
+        "200":
+          description: Scraped product data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapedProduct"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update product (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete product (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
+  /products/{id}/click:
+    post:
+      operationId: trackProductClick
+      tags: [products]
+      summary: Track affiliate link click
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Click tracked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClickResponse"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all categories with product counts
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create category (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      tags: [analytics]
+      summary: Get analytics summary (admin)
+      responses:
+        "200":
+          description: Analytics summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+        "401":
+          description: Unauthorized
+
+  /analytics/top-products:
+    get:
+      operationId: getTopProducts
+      tags: [analytics]
+      summary: Get top products by clicks (admin)
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductAnalytics"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAuthResult"
+        "401":
+          description: Invalid credentials
+
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      tags: [admin]
+      summary: Admin logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleMessage"
+
+  /admin/me:
+    get:
+      operationId: getAdminMe
+      tags: [admin]
+      summary: Get current admin session
+      responses:
+        "200":
+          description: Admin session info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Not authenticated
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +402,287 @@ components:
       required:
         - status
 
+    Product:
+      type: object
+      required: [id, title, price, affiliateUrl, category, clickCount, createdAt, featured]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        originalPrice:
+          type: ["number", "null"]
+        discountPercent:
+          type: ["integer", "null"]
+        currency:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        brand:
+          type: ["string", "null"]
+        category:
+          type: string
+        rating:
+          type: ["number", "null"]
+        reviewCount:
+          type: ["integer", "null"]
+        affiliateUrl:
+          type: string
+        store:
+          type: ["string", "null"]
+        specifications:
+          type: ["object", "null"]
+          additionalProperties: true
+        clickCount:
+          type: integer
+        featured:
+          type: boolean
+        inStock:
+          type: boolean
+        sourceUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ProductListResponse:
+      type: object
+      required: [products, total, page, limit]
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ProductInput:
+      type: object
+      required: [title, price, affiliateUrl, category]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: number
+        currency:
+          type: string
+          default: USD
+        images:
+          type: array
+          items:
+            type: string
+        brand:
+          type: string
+        category:
+          type: string
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        affiliateUrl:
+          type: string
+        store:
+          type: string
+        specifications:
+          type: object
+          additionalProperties: true
+        featured:
+          type: boolean
+        inStock:
+          type: boolean
+        sourceUrl:
+          type: string
+
+    ProductUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: ["number", "null"]
+        currency:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        brand:
+          type: string
+        category:
+          type: string
+        rating:
+          type: ["number", "null"]
+        reviewCount:
+          type: ["integer", "null"]
+        affiliateUrl:
+          type: string
+        store:
+          type: string
+        specifications:
+          type: object
+          additionalProperties: true
+        featured:
+          type: boolean
+        inStock:
+          type: boolean
+
+    ScrapedProduct:
+      type: object
+      required: [title, affiliateUrl]
+      properties:
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: ["number", "null"]
+        originalPrice:
+          type: ["number", "null"]
+        currency:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        brand:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        rating:
+          type: ["number", "null"]
+        reviewCount:
+          type: ["integer", "null"]
+        store:
+          type: ["string", "null"]
+        affiliateUrl:
+          type: string
+        specifications:
+          type: object
+          additionalProperties: true
+
+    ScrapeInput:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+
+    ClickResponse:
+      type: object
+      required: [success, clickCount]
+      properties:
+        success:
+          type: boolean
+        clickCount:
+          type: integer
+
+    Category:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: ["string", "null"]
+        productCount:
+          type: integer
+
+    CategoryInput:
+      type: object
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        icon:
+          type: string
+
+    AnalyticsSummary:
+      type: object
+      required: [totalProducts, totalClicks, totalCategories, topCategory, averageDiscount]
+      properties:
+        totalProducts:
+          type: integer
+        totalClicks:
+          type: integer
+        totalCategories:
+          type: integer
+        topCategory:
+          type: ["string", "null"]
+        averageDiscount:
+          type: ["number", "null"]
+        clicksToday:
+          type: integer
+        newProductsThisWeek:
+          type: integer
+
+    ProductAnalytics:
+      type: object
+      required: [id, title, clickCount, category]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        clickCount:
+          type: integer
+        category:
+          type: string
+        price:
+          type: number
+        images:
+          type: array
+          items:
+            type: string
+
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    AdminAuthResult:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    AdminSession:
+      type: object
+      required: [authenticated]
+      properties:
+        authenticated:
+          type: boolean
+
+    SimpleMessage:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string

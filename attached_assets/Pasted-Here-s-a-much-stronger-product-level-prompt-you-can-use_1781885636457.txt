@@ -1,0 +1,530 @@
+Here's a much stronger, product-level prompt you can use with an AI website builder or developer:
+
+
+---
+
+Affiliate Product Discovery Platform – Master Prompt
+
+Build a modern, professional affiliate marketing website that looks and feels like a premium e-commerce platform while acting as a product discovery and redirection system.
+
+Project Overview
+
+Create an affiliate product marketplace where I can paste product URLs from various e-commerce websites. The system should automatically extract product information and generate beautiful product cards.
+
+Users can browse products without creating an account. When they click a product card, they should see a dedicated product details page containing product information, images, specifications, pricing, ratings, and a prominent "Buy Now" button that redirects users to the original affiliate product link.
+
+The platform should prioritize user trust, product discovery, and conversion optimization.
+
+
+---
+
+Design Direction
+
+Visual Style
+
+Premium and professional
+
+Minimal and aesthetic
+
+Modern and clean
+
+Fast and lightweight
+
+Conversion-focused
+
+Mobile-first responsive design
+
+
+UI Inspiration
+
+Use the design philosophy of:
+
+Zepto
+
+Zepto Official Website
+
+
+But elevate it further with:
+
+Better whitespace
+
+Softer shadows
+
+Premium typography
+
+Smooth micro-interactions
+
+Elegant animations
+
+Clean card-based layouts
+
+High-end shopping experience
+
+
+Color Palette
+
+Pure White Background
+
+Soft Gray Surfaces
+
+Deep Black Text
+
+Primary Accent: Emerald Green or Royal Blue
+
+Minimal use of colors
+
+
+Typography
+
+Inter
+
+Geist
+
+SF Pro Display style hierarchy
+
+
+
+---
+
+User Features
+
+Homepage
+
+Hero Section
+
+Clean search bar
+
+Featured products
+
+Trending products
+
+Best deals section
+
+Popular categories
+
+
+Product Grid
+
+Display:
+
+Product image
+
+Product title
+
+Current price
+
+Original price
+
+Discount %
+
+Rating
+
+Store name
+
+Wishlist button
+
+
+
+---
+
+Search System
+
+Advanced search with:
+
+Instant search suggestions
+
+Typo tolerance
+
+Search history
+
+Recent searches
+
+Popular searches
+
+
+
+---
+
+Product Filtering
+
+Allow filtering by:
+
+Category
+
+Price range
+
+Rating
+
+Brand
+
+Store
+
+Availability
+
+Discount percentage
+
+New arrivals
+
+
+
+---
+
+Product Sorting
+
+Relevance
+
+Most popular
+
+Highest rated
+
+Lowest price
+
+Highest price
+
+Biggest discount
+
+Latest products
+
+
+
+---
+
+Product Details Page
+
+Display:
+
+Gallery
+
+Multiple images
+
+Zoom on hover
+
+Thumbnail selector
+
+
+Product Information
+
+Product title
+
+Price
+
+Original price
+
+Discount
+
+Brand
+
+Category
+
+Description
+
+Specifications
+
+
+Social Proof
+
+Ratings
+
+Reviews count
+
+
+CTA
+
+Large sticky button:
+
+"Buy Now"
+
+When clicked:
+
+Open affiliate URL
+
+Track click analytics
+
+Redirect to original website
+
+
+
+---
+
+Wishlist System
+
+Requirements:
+
+No login required
+
+Use Local Storage
+
+Add/remove wishlist
+
+Wishlist page
+
+Persistent across browser sessions
+
+
+
+---
+
+Categories System
+
+Support:
+
+Electronics
+
+Fashion
+
+Home
+
+Books
+
+Beauty
+
+Grocery
+
+Accessories
+
+Custom categories
+
+
+
+---
+
+Deals & Offers
+
+Dedicated pages:
+
+Today's Deals
+
+Flash Sales
+
+Best Discounts
+
+Trending Products
+
+
+
+---
+
+SEO Features
+
+Dynamic meta tags
+
+Open Graph support
+
+Twitter cards
+
+Structured data
+
+XML sitemap
+
+Robots.txt
+
+Canonical URLs
+
+Schema markup
+
+
+
+---
+
+Performance Requirements
+
+Lighthouse score above 95
+
+Lazy loading
+
+Optimized images
+
+Fast page transitions
+
+CDN-ready assets
+
+Mobile-first
+
+
+
+---
+
+Admin Panel
+
+Create a separate secure admin dashboard.
+
+Dashboard
+
+Show:
+
+Total products
+
+Total clicks
+
+Top products
+
+Top categories
+
+Affiliate conversions (if available)
+
+
+
+---
+
+Product Management
+
+Admin can:
+
+Add product using URL
+
+Edit product
+
+Delete product
+
+Bulk import products
+
+Categorize products
+
+Feature products
+
+
+Auto Product Generation
+
+When admin pastes a product URL:
+
+System should automatically fetch:
+
+Product title
+
+Images
+
+Price
+
+Description
+
+Brand
+
+Category
+
+
+And generate the product card automatically.
+
+Allow manual editing before publishing.
+
+
+---
+
+Analytics
+
+Track:
+
+Product clicks
+
+Popular products
+
+Popular categories
+
+Search terms
+
+Wishlist counts
+
+Referral performance
+
+
+
+---
+
+Content Management
+
+Manage:
+
+Homepage banners
+
+Featured products
+
+Categories
+
+Deals section
+
+Footer content
+
+
+
+---
+
+Security
+
+Admin authentication
+
+Protected admin routes
+
+Input validation
+
+Rate limiting
+
+XSS protection
+
+CSRF protection
+
+
+
+---
+
+Tech Stack
+
+Frontend:
+
+HTML5
+
+CSS3
+
+Vanilla JavaScript
+
+
+Backend:
+
+Node.js
+
+Express.js
+
+
+Database:
+
+Firebase Firestore
+
+
+Storage:
+
+Cloudinary
+
+
+Hosting:
+
+Vercel
+
+
+
+---
+
+Conversion Optimization
+
+Implement proven e-commerce psychology:
+
+Scarcity indicators
+
+Deal badges
+
+Trending labels
+
+Recently viewed products
+
+Sticky CTA buttons
+
+Trust indicators
+
+Clean checkout redirection flow
+
+Minimal distractions
+
+
+
+---
+
+Final Goal
+
+Build a premium affiliate product discovery platform that feels like a real e-commerce brand, combines the simplicity of Zepto with the elegance of modern SaaS products, and maximizes affiliate click-through rates while remaining extremely fast, clean, and mobile-friendly.
