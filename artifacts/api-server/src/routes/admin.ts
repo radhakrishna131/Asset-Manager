@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AdminLoginBody } from "@workspace/api-zod";
+import { syncProduct, syncAllProducts, isSyncInProgress, setSyncInProgress } from "../lib/price-sync";
 
 const router = Router();
 
@@ -36,6 +37,54 @@ router.get("/admin/me", (req, res) => {
     return;
   }
   res.json({ authenticated: true });
+});
+
+router.get("/admin/sync-status", (req, res) => {
+  const session = (req as any).session;
+  if (!session?.adminAuthenticated) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  res.json({ inProgress: isSyncInProgress() });
+});
+
+router.post("/admin/sync-prices", async (req, res) => {
+  const session = (req as any).session;
+  if (!session?.adminAuthenticated) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  if (isSyncInProgress()) {
+    res.status(409).json({ error: "Sync already in progress" });
+    return;
+  }
+
+  setSyncInProgress(true);
+  res.json({ message: "Sync started in background" });
+
+  syncAllProducts().finally(() => setSyncInProgress(false));
+});
+
+router.post("/admin/sync-prices/:id", async (req, res) => {
+  const session = (req as any).session;
+  if (!session?.adminAuthenticated) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const id = parseInt(req.params["id"] ?? "", 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid product ID" });
+    return;
+  }
+
+  const result = await syncProduct(id);
+  if (result.success) {
+    res.json({ success: true, message: "Product synced" });
+  } else {
+    res.status(400).json({ success: false, error: result.error });
+  }
 });
 
 export default router;

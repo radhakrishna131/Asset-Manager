@@ -6,12 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Search, Edit, Trash2, ExternalLink, RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function AdminProductsList() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [syncingId, setSyncingId] = useState<number | null>(null);
   const limit = 20;
 
   const queryParams = { search: search || undefined, page, limit, sort: "latest" as any };
@@ -30,6 +31,16 @@ export default function AdminProductsList() {
           queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
         }
       });
+    }
+  };
+
+  const handleSyncProduct = async (id: number) => {
+    setSyncingId(id);
+    try {
+      await fetch(`/api/admin/sync-prices/${id}`, { method: "POST", credentials: "include" });
+      queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
+    } finally {
+      setSyncingId(null);
     }
   };
 
@@ -104,9 +115,19 @@ export default function AdminProductsList() {
                       </div>
                     </TableCell>
                     <TableCell><Badge variant="outline">{product.category}</Badge></TableCell>
-                    <TableCell className="text-right font-medium">${product.price.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-medium">₹{product.price.toFixed(2)}</TableCell>
                     <TableCell className="text-center font-bold text-primary">{product.clickCount}</TableCell>
-                    <TableCell className="text-right space-x-2">
+                    <TableCell className="text-right space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Sync price from site"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        disabled={syncingId === product.id}
+                        onClick={() => handleSyncProduct(product.id)}
+                      >
+                        <RefreshCw className={`w-4 h-4 ${syncingId === product.id ? "animate-spin" : ""}`} />
+                      </Button>
                       <a href={product.affiliateUrl} target="_blank" rel="noreferrer" className="inline-block">
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                           <ExternalLink className="w-4 h-4" />

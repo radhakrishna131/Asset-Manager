@@ -30,6 +30,8 @@ export const productsTable = pgTable("products", {
   featured: boolean("featured").default(false).notNull(),
   inStock: boolean("in_stock").default(true).notNull(),
   sourceUrl: text("source_url"),
+  lastSyncedAt: timestamp("last_synced_at"),
+  syncError: text("sync_error"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
