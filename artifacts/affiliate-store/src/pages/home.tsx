@@ -104,7 +104,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="relative rounded-2xl overflow-hidden min-h-[200px] flex items-end"
-            style={{ background: "linear-gradient(135deg, #B2F5EA 0%, #81E6D9 50%, #4FD1C5 100%)" }}
+            style={{ background: "linear-gradient(135deg, #E8EFF9 0%, #C8D9F2 55%, #A8C2EA 100%)" }}
           >
             {/* Background product image */}
             {topDeal?.images?.[0] && (
@@ -119,17 +119,17 @@ export default function Home() {
             )}
             <div className="relative z-10 p-7 flex flex-col gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-teal-800/70 mb-1">Limited Time</p>
-                <h2 className="text-3xl font-bold text-teal-900 leading-tight">
+                <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#2d4a7a" }}>Limited Time</p>
+                <h2 className="text-3xl font-bold leading-tight" style={{ color: "#1a2e52" }}>
                   Get up to{" "}
                   {topDeal?.discountPercent ? `${topDeal.discountPercent}%` : "50%"} off
                 </h2>
-                <p className="text-sm text-teal-800/70 mt-1 max-w-xs">
+                <p className="text-sm mt-1 max-w-xs" style={{ color: "#3a5280" }}>
                   {topDeal?.title || "Best deals of the season, curated daily"}
                 </p>
               </div>
               <Link href="/deals">
-                <span className="inline-flex items-center gap-2 bg-white text-teal-900 text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/90 transition-colors shadow-sm w-fit">
+                <span className="inline-flex items-center gap-2 bg-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/90 transition-colors shadow-sm w-fit" style={{ color: "#1a2e52" }}>
                   Get Discount <Tag className="w-3.5 h-3.5" />
                 </span>
               </Link>
@@ -142,7 +142,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="relative rounded-2xl overflow-hidden min-h-[170px] flex items-end"
-            style={{ background: "linear-gradient(135deg, #FEFCBF 0%, #FAF089 50%, #F6E05E 100%)" }}
+            style={{ background: "linear-gradient(135deg, #FAF6F0 0%, #EFE4D4 55%, #E3D2BC 100%)" }}
           >
             {topFeatured?.images?.[0] && (
               <div className="absolute right-0 top-0 h-full w-2/5 pointer-events-none">
@@ -156,12 +156,12 @@ export default function Home() {
             )}
             <div className="relative z-10 p-7 flex items-start justify-between w-full">
               <div>
-                <h2 className="text-2xl font-bold text-yellow-900 leading-snug">Best Sellers</h2>
-                <p className="text-sm text-yellow-800/70 mt-1">Handpicked for quality & value</p>
+                <h2 className="text-2xl font-bold leading-snug" style={{ color: "#3d2a14" }}>Best Sellers</h2>
+                <p className="text-sm mt-1" style={{ color: "#6b4e30" }}>Handpicked for quality & value</p>
               </div>
               <Link href="/products">
                 <div className="w-9 h-9 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-xs">
-                  <ArrowUpRight className="w-4 h-4 text-yellow-900" />
+                  <ArrowUpRight className="w-4 h-4" style={{ color: "#3d2a14" }} />
                 </div>
               </Link>
             </div>
