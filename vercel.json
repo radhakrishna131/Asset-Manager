@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm --filter affiliate-store run build",
+  "outputDirectory": "artifacts/affiliate-store/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
