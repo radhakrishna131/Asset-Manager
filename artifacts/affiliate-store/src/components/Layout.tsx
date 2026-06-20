@@ -8,6 +8,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { useListCategories, getListCategoriesQueryKey } from "@workspace/api-client-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { LucideIcon } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   electronics: Monitor,
@@ -183,6 +184,7 @@ export function Layout({ children }: { children: ReactNode }) {
         {/* Page content */}
         <main className="flex-1 overflow-y-auto">
           {children}
+          <Footer />
         </main>
       </div>
     </div>
