@@ -16,10 +16,10 @@ const navSections = [
   {
     heading: "Info",
     links: [
-      { label: "About Curation", href: "#" },
-      { label: "How It Works", href: "#" },
-      { label: "Affiliate Disclosure", href: "#" },
-      { label: "Privacy Policy", href: "#" },
+      { label: "About Curation", href: "/about" },
+      { label: "How It Works", href: "/how-it-works" },
+      { label: "Affiliate Disclosure", href: "/affiliate-disclosure" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Admin Portal", href: "/admin" },
     ],
   },

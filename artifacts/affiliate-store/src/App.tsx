@@ -11,6 +11,10 @@ import ProductsPage from "@/pages/products/index";
 import ProductDetail from "@/pages/products/[id]";
 import DealsPage from "@/pages/deals";
 import WishlistPage from "@/pages/wishlist";
+import AboutPage from "@/pages/about";
+import HowItWorksPage from "@/pages/how-it-works";
+import AffiliateDisclosurePage from "@/pages/affiliate-disclosure";
+import PrivacyPolicyPage from "@/pages/privacy-policy";
 
 // Admin
 import AdminLogin from "@/pages/admin/login";
@@ -47,6 +51,10 @@ function AppRouter() {
             <Route path="/products/:id" component={ProductDetail} />
             <Route path="/deals" component={DealsPage} />
             <Route path="/wishlist" component={WishlistPage} />
+            <Route path="/about" component={AboutPage} />
+            <Route path="/how-it-works" component={HowItWorksPage} />
+            <Route path="/affiliate-disclosure" component={AffiliateDisclosurePage} />
+            <Route path="/privacy-policy" component={PrivacyPolicyPage} />
             <Route component={NotFound} />
           </Switch>
         </Layout>
