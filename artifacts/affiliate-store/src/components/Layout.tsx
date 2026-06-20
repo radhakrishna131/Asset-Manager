@@ -1,56 +1,190 @@
-import { ReactNode } from "react";
-import { Link } from "wouter";
-import { Search, Heart } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { Link, useLocation } from "wouter";
+import {
+  Zap, Shirt, BookOpen, Sparkles, Activity, Home, ShoppingBasket, Watch,
+  Heart, Settings, Menu, X, Monitor, Gift, ChevronRight, Package
+} from "lucide-react";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useListCategories, getListCategoriesQueryKey } from "@workspace/api-client-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { LucideIcon } from "lucide-react";
 
-export function Layout({ children }: { children: ReactNode }) {
+const categoryIconMap: Record<string, LucideIcon> = {
+  electronics: Monitor,
+  fashion: Shirt,
+  books: BookOpen,
+  beauty: Sparkles,
+  sports: Activity,
+  "home-living": Home,
+  "home": Home,
+  grocery: ShoppingBasket,
+  accessories: Watch,
+  gifts: Gift,
+};
+
+function NavItem({
+  href,
+  icon: Icon,
+  label,
+  active,
+  badge,
+  onClick,
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  active?: boolean;
+  badge?: number;
+  onClick?: () => void;
+}) {
+  return (
+    <Link href={href} onClick={onClick}>
+      <div
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer ${
+          active
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+        }`}
+      >
+        <Icon className="w-4 h-4 shrink-0" />
+        <span className="truncate flex-1">{label}</span>
+        {badge ? (
+          <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full leading-none ${
+            active ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+          }`}>
+            {badge}
+          </span>
+        ) : null}
+      </div>
+    </Link>
+  );
+}
+
+function SidebarContent({ onNav }: { onNav?: () => void }) {
+  const [location] = useLocation();
   const { wishlist } = useWishlist();
 
+  const { data: categories } = useListCategories({
+    query: { queryKey: getListCategoriesQueryKey() },
+  });
+
+  const catParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "").get("category");
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-sm font-semibold tracking-widest uppercase text-foreground">
-              Curation
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/products" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors tracking-wide uppercase">
-                Products
-              </Link>
-              <Link href="/deals" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors tracking-wide uppercase">
-                Deals
-              </Link>
-            </nav>
-          </div>
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="px-5 py-5 border-b border-border/60">
+        <Link href="/" onClick={onNav}>
+          <span className="text-lg font-bold tracking-tight text-foreground">Curation</span>
+        </Link>
+      </div>
 
-          <div className="flex items-center gap-1">
-            <Link href="/products" className="text-muted-foreground hover:text-foreground p-2 transition-colors">
-              <Search className="w-4 h-4" />
-            </Link>
-            <Link href="/wishlist" className="relative text-muted-foreground hover:text-foreground p-2 transition-colors">
-              <Heart className="w-4 h-4" />
-              {wishlist.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-foreground rounded-full" />
-              )}
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-3 mb-2">Browse</p>
 
-      <main className="flex-1">
-        {children}
-      </main>
+        <NavItem
+          href="/"
+          icon={Zap}
+          label="Explore New"
+          active={location === "/"}
+          onClick={onNav}
+        />
+        <NavItem
+          href="/deals"
+          icon={Sparkles}
+          label="Today's Deals"
+          active={location === "/deals"}
+          onClick={onNav}
+        />
 
-      <footer className="border-t border-border/60 py-10 mt-16">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <span className="tracking-widest uppercase font-medium">Curation</span>
-          <span>&copy; {new Date().getFullYear()} — A curated product discovery platform for India</span>
-          <Link href="/admin" className="hover:text-foreground transition-colors tracking-wide uppercase">
-            Admin
+        {categories && categories.length > 0 && (
+          <>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-3 pt-4 pb-1">Categories</p>
+            {categories.map((cat) => {
+              const Icon = categoryIconMap[cat.slug] || Package;
+              const isActive = location === "/products" && catParams === cat.slug;
+              return (
+                <NavItem
+                  key={cat.id}
+                  href={`/products?category=${cat.slug}`}
+                  icon={Icon}
+                  label={cat.name}
+                  active={isActive}
+                  badge={cat.productCount > 0 ? cat.productCount : undefined}
+                  onClick={onNav}
+                />
+              );
+            })}
+          </>
+        )}
+
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-3 pt-4 pb-1">Quick Links</p>
+        <NavItem
+          href="/products"
+          icon={Package}
+          label="All Products"
+          active={location === "/products" && !catParams}
+          onClick={onNav}
+        />
+        <NavItem
+          href="/wishlist"
+          icon={Heart}
+          label="Wishlist"
+          active={location === "/wishlist"}
+          badge={wishlist.length > 0 ? wishlist.length : undefined}
+          onClick={onNav}
+        />
+      </nav>
+
+      {/* Footer */}
+      <div className="px-3 py-4 border-t border-border/60 space-y-1">
+        <NavItem href="/admin" icon={Settings} label="Admin" onClick={onNav} />
+      </div>
+    </div>
+  );
+}
+
+export function Layout({ children }: { children: ReactNode }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      {/* Mobile sidebar sheet */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-56 p-0 bg-card">
+          <SidebarContent onNav={() => setMobileOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-52 flex-col bg-card border-r border-border/60 shrink-0 overflow-hidden">
+        <SidebarContent />
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Mobile top bar */}
+        <div className="md:hidden flex items-center justify-between px-4 h-14 bg-card border-b border-border/60 shrink-0">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <Link href="/">
+            <span className="font-bold text-base">Curation</span>
+          </Link>
+          <Link href="/wishlist" className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+            <Heart className="w-5 h-5" />
           </Link>
         </div>
-      </footer>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
