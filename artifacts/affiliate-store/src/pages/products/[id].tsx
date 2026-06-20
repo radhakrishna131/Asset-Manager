@@ -1,11 +1,128 @@
 import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetProduct, getGetProductQueryKey, useTrackProductClick } from "@workspace/api-client-react";
+import {
+  useGetProduct,
+  getGetProductQueryKey,
+  useTrackProductClick,
+  useListProducts,
+  getListProductsQueryKey,
+  useGetTrendingProducts,
+  getGetTrendingProductsQueryKey,
+} from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star, ExternalLink, Heart, Check, ArrowLeft, ShoppingBag } from "lucide-react";
+import { Star, ExternalLink, Heart, Check, ArrowLeft, ShoppingBag, ChevronRight, TrendingUp, LayoutGrid } from "lucide-react";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { formatPrice } from "@/lib/format";
+import { ProductCard, cardVariants } from "@/components/ProductCard";
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+};
+
+function RecommendationSection({ currentId, category }: { currentId: number; category: string }) {
+  const { data: categoryData } = useListProducts(
+    { category, limit: 7, sort: "popular" as any },
+    { query: { queryKey: getListProductsQueryKey({ category, limit: 7, sort: "popular" as any }) } }
+  );
+
+  const { data: trendingData } = useGetTrendingProducts(
+    { limit: 8 },
+    { query: { queryKey: getGetTrendingProductsQueryKey({ limit: 8 }) } }
+  );
+
+  const similar = (categoryData?.products ?? []).filter((p) => p.id !== currentId).slice(0, 6);
+  const trending = (trendingData ?? []).filter((p) => p.id !== currentId).slice(0, 6);
+
+  const showSimilar = similar.length >= 2;
+  const showTrending = trending.length >= 2;
+
+  if (!showSimilar && !showTrending) return null;
+
+  return (
+    <div className="mt-12 space-y-10">
+      {showSimilar && (
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              <h2 className="text-lg font-bold tracking-tight">More in {category}</h2>
+            </div>
+            <Link href={`/products?category=${encodeURIComponent(category)}`}>
+              <span className="flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                See all <ChevronRight className="w-4 h-4" />
+              </span>
+            </Link>
+          </div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+          >
+            {similar.map((product) => (
+              <motion.div key={product.id} variants={cardVariants}>
+                <ProductCard product={product} size="sm" />
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+      )}
+
+      {showTrending && (
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-1 h-5 bg-amber-400 rounded-full" />
+              <TrendingUp className="w-4 h-4 text-amber-500" />
+              <h2 className="text-lg font-bold tracking-tight">Trending Right Now</h2>
+            </div>
+            <Link href="/products?sort=popular">
+              <span className="flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                See all <ChevronRight className="w-4 h-4" />
+              </span>
+            </Link>
+          </div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+          >
+            {trending.map((product) => (
+              <motion.div key={product.id} variants={cardVariants}>
+                <ProductCard product={product} size="sm" />
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function RecommendationSkeleton() {
+  return (
+    <div className="mt-12">
+      <div className="flex items-center gap-3 mb-5">
+        <Skeleton className="w-1 h-5 rounded-full" />
+        <Skeleton className="h-5 w-40 rounded-lg" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <Skeleton className="aspect-[3/4] rounded-2xl" />
+            <Skeleton className="h-3.5 w-3/4 rounded" />
+            <Skeleton className="h-4 w-1/2 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function ProductDetail() {
   const [, params] = useRoute("/products/:id");
@@ -39,6 +156,7 @@ export default function ProductDetail() {
             <Skeleton className="h-12 w-40 rounded-full" />
           </div>
         </div>
+        <RecommendationSkeleton />
       </div>
     );
   }
@@ -122,9 +240,12 @@ export default function ProductDetail() {
         >
           {/* Badges */}
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full capitalize">
-              {product.category}
-            </span>
+            <Link href={`/products?category=${encodeURIComponent(product.category)}`}>
+              <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full capitalize hover:bg-primary/20 transition-colors cursor-pointer flex items-center gap-1">
+                <LayoutGrid className="w-3 h-3" />
+                {product.category}
+              </span>
+            </Link>
             {product.discountPercent ? (
               <span className="text-xs font-bold bg-red-100 text-red-600 px-3 py-1 rounded-full">
                 -{product.discountPercent}% off
@@ -231,6 +352,9 @@ export default function ProductDetail() {
           )}
         </motion.div>
       </div>
+
+      {/* ── Recommendations ── */}
+      <RecommendationSection currentId={product.id} category={product.category} />
     </motion.div>
   );
 }
